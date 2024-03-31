@@ -1,5 +1,5 @@
 /**
- * utils.ts 10.0.1-dev
+ * utils.ts 10.1.2-dev
  * Copyright (c) 2021 Alain Dumesny - see GridStack root license
  */
 
@@ -109,9 +109,11 @@ export class Utils {
     return els;
   }
 
-  /** true if we should resize to content */
-  static shouldSizeToContent(n: GridStackNode | undefined): boolean {
-    return n?.grid && (!!n.sizeToContent || (n.grid.opts.sizeToContent && n.sizeToContent !== false));
+  /** true if we should resize to content. strict=true when only 'sizeToContent:true' and not a number which lets user adjust */
+  static shouldSizeToContent(n: GridStackNode | undefined, strict = false): boolean {
+    return n?.grid && (strict ? 
+    (n.sizeToContent === true || (n.grid.opts.sizeToContent === true && n.sizeToContent === undefined)) :
+    (!!n.sizeToContent || (n.grid.opts.sizeToContent && n.sizeToContent !== false)));
   }
 
   /** returns true if a and b overlap */
@@ -143,15 +145,15 @@ export class Utils {
   /**
    * Sorts array of nodes
    * @param nodes array to sort
-   * @param dir 1 for asc, -1 for desc (optional)
-   * @param width width of the grid. If undefined the width will be calculated automatically (optional).
+   * @param dir 1 for ascending, -1 for descending (optional)
    **/
-  static sort(nodes: GridStackNode[], dir: 1 | -1 = 1, column?: number): GridStackNode[] {
-    column = column || nodes.reduce((col, n) => Math.max(n.x + n.w, col), 0) || 12;
-    if (dir === -1)
-      return nodes.sort((a, b) => ((b.x ?? 1000) + (b.y ?? 1000) * column)-((a.x ?? 1000) + (a.y ?? 1000) * column));
-    else
-      return nodes.sort((b, a) => ((b.x ?? 1000) + (b.y ?? 1000) * column)-((a.x ?? 1000) + (a.y ?? 1000) * column));
+  static sort(nodes: GridStackNode[], dir: 1 | -1 = 1): GridStackNode[] {
+    const und = 10000;
+    return nodes.sort((a, b) => {
+      let diffY = dir * ((a.y ?? und) - (b.y ?? und));
+      if (diffY === 0) return dir * ((a.x ?? und) - (b.x ?? und));
+      return diffY;
+    });
   }
 
   /** find an item by id */

@@ -5,7 +5,9 @@ Change log
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 **Table of Contents**  *generated with [DocToc](http://doctoc.herokuapp.com/)*
 
-- [10.0.1-dev (TBD)](#1001-dev-tbd)
+- [10.1.2 (2024-03-30)](#1012-2024-03-30)
+- [10.1.1 (2024-03-03)](#1011-2024-03-03)
+- [10.1.0 (2024-02-04)](#1010-2024-02-04)
 - [10.0.1 (2023-12-10)](#1001-2023-12-10)
 - [10.0.0 (2023-11-20)](#1000-2023-11-20)
 - [9.5.1 (2023-11-11)](#951-2023-11-11)
@@ -106,8 +108,19 @@ Change log
 - [v0.1.0 (2014-11-18)](#v010-2014-11-18)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
+## 10.1.2 (2024-03-30)
+* fix: [#2628](https://github.com/gridstack/gridstack.js/issues/2628) `removeAll()` does not trigger Angular's ngOnDestroy 
+* fix: [#2503](https://github.com/gridstack/gridstack.js/issues/2503) Drag and drop a widget on top of a locked widget - Thank you [JakubEleniuk](https://github.com/JakubEleniuk)
+* fix: [#2584](https://github.com/gridstack/gridstack.js/issues/2584) wrong sort order during 1 column resize - Thank you [JakubEleniuk](https://github.com/JakubEleniuk) again.
+* fix: [#2639](https://github.com/gridstack/gridstack.js/issues/2639) load() with mix of new item without coordinates
+* fix: [#2633](https://github.com/gridstack/gridstack.js/issues/2633) Drop into full grid causes crash
+* fix: [#2559](https://github.com/gridstack/gridstack.js/issues/2559) changed angular demos (support 1 column)
+* fix: [#2453](https://github.com/gridstack/gridstack.js/issues/2453) recreated grid trash issue
 
-## 10.0.1-dev (TBD)
+## 10.1.1 (2024-03-03)
+* fix: [#2620](https://github.com/gridstack/gridstack.js/pull/2620) allow resizing with sizeToContent:NUMBER is uses 
+
+## 10.1.0 (2024-02-04)
 * feat: [#2574](https://github.com/gridstack/gridstack.js/pull/2574) Allow cell height in cm and mm units
 * feat: [#2578](https://github.com/gridstack/gridstack.js/pull/2578) allow different scaling between drag toolbar and grid
 * fix: [#2577](https://github.com/gridstack/gridstack.js/issues/2577) ui-resizable-s/-n style fix
@@ -115,6 +128,7 @@ Change log
 * fix: [#2560](https://github.com/gridstack/gridstack.js/issues/2560) nested grid fix (enter can call leave which can call enter again) - Thank you [v1talii-dev](https://github.com/v1talii-dev)
 * fix: [#2596](https://github.com/gridstack/gridstack.js/pull/2596) prevent SSR crash
 * fix: [#2610](https://github.com/gridstack/gridstack.js/pull/2610) using passive:true for mousemove events
+* fix: [#2612](https://github.com/gridstack/gridstack.js/pull/2612) restrict vertical resize if `sizeToContent:true`
 * demo: nested.htm now has nested create and drag&drop example - Thank you [fredericrous](https://github.com/fredericrous)
 
 ## 10.0.1 (2023-12-10)

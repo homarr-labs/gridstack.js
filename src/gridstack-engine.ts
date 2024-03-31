@@ -1,5 +1,5 @@
 /**
- * gridstack-engine.ts 10.0.1-dev
+ * gridstack-engine.ts 10.1.2-dev
  * Copyright (c) 2021-2022 Alain Dumesny - see GridStack root license
  */
 
@@ -160,20 +160,22 @@ export class GridStackEngine {
 
     let collide: GridStackNode;
     let overMax = 0.5; // need >50%
-    collides.forEach(n => {
-      if (n.locked || !n._rect) return;
+    for (let n of collides) {
+      if (n.locked || !n._rect) {
+        break;
+      }
       let r2 = n._rect; // overlapping target
       let yOver = Number.MAX_VALUE, xOver = Number.MAX_VALUE;
       // depending on which side we started from, compute the overlap % of coverage
       // (ex: from above/below we only compute the max horizontal line coverage)
       if (r0.y < r2.y) { // from above
         yOver = ((r.y + r.h) - r2.y) / r2.h;
-      } else if (r0.y+r0.h > r2.y+r2.h) { // from below
+      } else if (r0.y + r0.h > r2.y + r2.h) { // from below
         yOver = ((r2.y + r2.h) - r.y) / r2.h;
       }
       if (r0.x < r2.x) { // from the left
         xOver = ((r.x + r.w) - r2.x) / r2.w;
-      } else if (r0.x+r0.w > r2.x+r2.w) { // from the right
+      } else if (r0.x + r0.w > r2.x + r2.w) { // from the right
         xOver = ((r2.x + r2.w) - r.x) / r2.w;
       }
       let over = Math.min(xOver, yOver);
@@ -181,7 +183,7 @@ export class GridStackEngine {
         overMax = over;
         collide = n;
       }
-    });
+    }
     o.collide = collide; // save it so we don't have to find it again
     return collide;
   }
@@ -297,8 +299,8 @@ export class GridStackEngine {
   public get float(): boolean { return this._float || false; }
 
   /** sort the nodes array from first to last, or reverse. Called during collision/placement to force an order */
-  public sortNodes(dir: 1 | -1 = 1, column = this.column): GridStackEngine {
-    this.nodes = Utils.sort(this.nodes, dir, column);
+  public sortNodes(dir: 1 | -1 = 1): GridStackEngine {
+    this.nodes = Utils.sort(this.nodes, dir);
     return this;
   }
 
@@ -554,13 +556,14 @@ export class GridStackEngine {
     return this;
   }
 
-  public removeAll(removeDOM = true): GridStackEngine {
+  public removeAll(removeDOM = true, triggerEvent = true): GridStackEngine {
     delete this._layouts;
     if (!this.nodes.length) return this;
     removeDOM && this.nodes.forEach(n => n._removeDOM = true); // let CB remove actual HTML (used to set _id to null, but then we loose layout info)
-    this.removedNodes = this.nodes;
+    const removedNodes = this.nodes;
+    this.removedNodes = triggerEvent ? removedNodes : [];
     this.nodes = [];
-    return this._notify(this.removedNodes);
+    return this._notify(removedNodes);
   }
 
   /** checks if item can be moved (layout constrain) vs moveNode(), returning true if was able to move.
@@ -809,14 +812,14 @@ export class GridStackEngine {
     // simpler shortcuts layouts
     const doCompact = layout === 'compact' || layout === 'list';
     if (doCompact) {
-      this.sortNodes(1, prevColumn); // sort with original layout once and only once (new column will affect order otherwise)
+      this.sortNodes(1); // sort with original layout once and only once (new column will affect order otherwise)
     }
 
     // cache the current layout in case they want to go back (like 12 -> 1 -> 12) as it requires original data IFF we're sizing down (see below)
     if (column < prevColumn) this.cacheLayout(this.nodes, prevColumn);
     this.batchUpdate(); // do this EARLY as it will call saveInitial() so we can detect where we started for _dirty and collision
     let newNodes: GridStackNode[] = [];
-    let nodes = doCompact ? this.nodes : Utils.sort(this.nodes, -1, prevColumn); // current column reverse sorting so we can insert last to front (limit collision)
+    let nodes = doCompact ? this.nodes : Utils.sort(this.nodes, -1); // current column reverse sorting so we can insert last to front (limit collision)
 
     // see if we have cached previous layout IFF we are going up in size (restore) otherwise always
     // generate next size down from where we are (looks more natural as you gradually size down).
@@ -888,7 +891,7 @@ export class GridStackEngine {
       }
 
       // finally re-layout them in reverse order (to get correct placement)
-      newNodes = Utils.sort(newNodes, -1, column);
+      newNodes = Utils.sort(newNodes, -1);
       this._inColumnResize = true; // prevent cache update
       this.nodes = []; // pretend we have no nodes to start with (add() will use same structures) to simplify layout
       newNodes.forEach(node => {
