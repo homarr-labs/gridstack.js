@@ -111,9 +111,9 @@ export class Utils {
 
   /** true if we should resize to content. strict=true when only 'sizeToContent:true' and not a number which lets user adjust */
   static shouldSizeToContent(n: GridStackNode | undefined, strict = false): boolean {
-    return n?.grid && (strict ? 
-    (n.sizeToContent === true || (n.grid.opts.sizeToContent === true && n.sizeToContent === undefined)) :
-    (!!n.sizeToContent || (n.grid.opts.sizeToContent && n.sizeToContent !== false)));
+    return n?.grid && (strict ?
+      (n.sizeToContent === true || (n.grid.opts.sizeToContent === true && n.sizeToContent === undefined)) :
+      (!!n.sizeToContent || (n.grid.opts.sizeToContent && n.sizeToContent !== false)));
   }
 
   /** returns true if a and b overlap */
@@ -305,14 +305,13 @@ export class Utils {
   static removeInternalAndSame(a: unknown, b: unknown):void {
     if (typeof a !== 'object' || typeof b !== 'object') return;
     for (let key in a) {
-      let val = a[key];
-      if (key[0] === '_' || val === b[key]) {
+      const aVal = a[key];
+      const bVal = b[key];
+      if (key[0] === '_' || aVal === bVal) {
         delete a[key]
-      } else if (val && typeof val === 'object' && b[key] !== undefined) {
-        for (let i in val) {
-          if (val[i] === b[key][i] || i[0] === '_') { delete val[i] }
-        }
-        if (!Object.keys(val).length) { delete a[key] }
+      } else if (aVal && typeof aVal === 'object' && bVal !== undefined) {
+        Utils.removeInternalAndSame(aVal, bVal);
+        if (!Object.keys(aVal).length) { delete a[key] }
       }
     }
   }
