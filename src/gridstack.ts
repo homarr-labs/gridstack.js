@@ -1064,6 +1064,35 @@ export class GridStack {
     return { x: Math.floor(relativeLeft / columnWidth), y: Math.floor(relativeTop / rowHeight) };
   }
 
+  /**
+   * set the number of rows in the grid. Won't affect existing widgets, but will set the number of rows to grow
+   * @param row - Integer > 0.
+   */
+  public row(row: number): GridStack {
+    if (!row || row < 1 || (this.opts.maxRow === row && this.opts.minRow === row)) return this;
+
+    this.opts.maxRow = row;
+    this.opts.minRow = row;
+    if (!this.engine) return this; // called in constructor, noting else to do
+
+    this.engine.maxRow = row;
+    this.el.setAttribute('gs-max-row', row.toString());
+    this.el.setAttribute('gs-min-row', row.toString());
+
+    if (this._isAutoCellHeight) this.cellHeight();
+
+
+    this.resizeToContentCheck(true); // wait for width resizing
+
+    // and trigger our event last...
+    this._ignoreLayoutsNodeChange = true; // skip layout update
+    this._triggerChangeEvent();
+    delete this._ignoreLayoutsNodeChange;
+
+    return this;
+
+  }
+
   /** returns the current number of rows, which will be at least `minRow` if set */
   public getRow(): number {
     return Math.max(this.engine.getRow(), this.opts.minRow);
@@ -1716,9 +1745,11 @@ export class GridStack {
       if (n.w === 1) el.removeAttribute('gs-w');
       if (n.h === 1) el.removeAttribute('gs-h');
       if (n.maxW) el.removeAttribute('gs-max-w');
-      if (n.minW) el.removeAttribute('gs-min-w');
+      // Not removed for usage with css
+      //if (n.minW) el.removeAttribute('gs-min-w');
       if (n.maxH) el.removeAttribute('gs-max-h');
-      if (n.minH) el.removeAttribute('gs-min-h');
+      // Not removed for usage with css
+      //if (n.minH) el.removeAttribute('gs-min-h');
     }
 
     // remove any key not found (null or false which is default)
