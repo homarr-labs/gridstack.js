@@ -1,6 +1,6 @@
 /**
- * dd-gridstack.ts 10.1.2-dev
- * Copyright (c) 2021 Alain Dumesny - see GridStack root license
+ * dd-gridstack.ts 10.3.1-dev
+ * Copyright (c) 2021-2024 Alain Dumesny - see GridStack root license
  */
 
 /* eslint-disable @typescript-eslint/no-unused-vars */
@@ -18,7 +18,7 @@ export type DDDropOpt = {
 /** drag&drop options currently called from the main code, but others can be passed in grid options */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type DDOpts = 'enable' | 'disable' | 'destroy' | 'option' | string | any;
-export type DDKey = 'minWidth' | 'minHeight' | 'maxWidth' | 'maxHeight';
+export type DDKey = 'minWidth' | 'minHeight' | 'maxWidth' | 'maxHeight' | 'maxHeightMoveUp' | 'maxWidthMoveLeft';
 export type DDValue = number | string;
 
 /** drag&drop events callbacks */
@@ -79,7 +79,7 @@ export class DDGridStack {
         dEl.setupDraggable({
           ...grid.opts.draggable,
           ...{
-            // containment: (grid.parentGridItem && !grid.opts.dragOut) ? grid.el.parentElement : (grid.opts.draggable.containment || null),
+            // containment: (grid.parentGridItem && grid.opts.dragOut === false) ? grid.el.parentElement : (grid.opts.draggable.containment || null),
             start: opts.start,
             stop: opts.stop,
             drag: opts.drag
@@ -118,17 +118,17 @@ export class DDGridStack {
 
   /** true if element is droppable */
   public isDroppable(el: DDElementHost): boolean {
-    return !!(el && el.ddElement && el.ddElement.ddDroppable && !el.ddElement.ddDroppable.disabled);
+    return !!(el?.ddElement?.ddDroppable && !el.ddElement.ddDroppable.disabled);
   }
 
   /** true if element is draggable */
   public isDraggable(el: DDElementHost): boolean {
-    return !!(el && el.ddElement && el.ddElement.ddDraggable && !el.ddElement.ddDraggable.disabled);
+    return !!(el?.ddElement?.ddDraggable && !el.ddElement.ddDraggable.disabled);
   }
 
   /** true if element is draggable */
   public isResizable(el: DDElementHost): boolean {
-    return !!(el && el.ddElement && el.ddElement.ddResizable && !el.ddElement.ddResizable.disabled);
+    return !!(el?.ddElement?.ddResizable && !el.ddElement.ddResizable.disabled);
   }
 
   public on(el: GridItemHTMLElement, name: string, callback: DDCallback): DDGridStack {

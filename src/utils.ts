@@ -1,8 +1,9 @@
 /**
- * utils.ts 10.1.2-dev
- * Copyright (c) 2021 Alain Dumesny - see GridStack root license
+ * utils.ts 10.3.1-dev
+ * Copyright (c) 2021-2024 Alain Dumesny - see GridStack root license
  */
 
+import { GridStack } from './gridstack';
 import { GridStackElement, GridStackNode, GridStackOptions, numberOrString, GridStackPosition, GridStackWidget } from './types';
 
 export interface HeightData {
@@ -107,6 +108,22 @@ export class Utils {
       return el as HTMLElement;
     }
     return els;
+  }
+
+  /** create the default grid item divs */
+  static createWidgetDivs(itemClass?: string, w?: GridStackWidget): HTMLElement {
+    const el = Utils.createDiv(['grid-stack-item', itemClass]);
+    Utils.createDiv(['grid-stack-item-content'], el, w);
+    return el;
+  }
+
+  /** create a div (possibly 2) with the given classes */
+  static createDiv(classes: string[], parent?: HTMLElement, w?: GridStackWidget): HTMLElement {
+    let el = document.createElement('div');
+    classes.forEach(c => {if (c) el.classList.add(c)});
+    parent?.appendChild(el);
+    if (w) GridStack.renderCB(el, w);
+    return el;
   }
 
   /** true if we should resize to content. strict=true when only 'sizeToContent:true' and not a number which lets user adjust */
@@ -530,10 +547,6 @@ export class Utils {
       cancelable: true,
       target: info.target ? info.target : e.target
     };
-    // don't check for `instanceof DragEvent` as Safari use MouseEvent #1540
-    if ((e as DragEvent).dataTransfer) {
-      evt['dataTransfer'] = (e as DragEvent).dataTransfer; // workaround 'readonly' field.
-    }
     ['altKey','ctrlKey','metaKey','shiftKey'].forEach(p => evt[p] = e[p]); // keys
     ['pageX','pageY','clientX','clientY','screenX','screenY'].forEach(p => evt[p] = e[p]); // point info
     return {...evt, ...obj} as unknown as T;
@@ -589,6 +602,12 @@ export class Utils {
     }
   }
 
+  /** swap the given object 2 field values */
+  public static swap(o: unknown, a: string, b: string): void {
+    if (!o) return;
+    const tmp = o[a]; o[a] = o[b]; o[b] = tmp;
+  }
+
   /** returns true if event is inside the given element rectangle */
   // Note: Safari Mac has null event.relatedTarget which causes #1684 so check if DragEvent is inside the coordinates instead
   //    this.el.contains(event.relatedTarget as HTMLElement)
@@ -601,4 +620,9 @@ export class Utils {
   //   }
   //   return el.contains(target);
   // }
+
+  /** true if the item can be rotated (checking for prop, not space available) */
+  public static canBeRotated(n: GridStackNode): boolean {
+    return !(!n || n.w === n.h || n.locked || n.noResize || n.grid?.opts.disableResize || (n.minW && n.minW === n.maxW) || (n.minH && n.minH === n.maxH));
+  }
 }

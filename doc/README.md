@@ -3,7 +3,6 @@
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 
-
 - [Grid Options](#grid-options)
   - [Responsive](#responsive)
     - [Breakpoint](#breakpoint)
@@ -32,7 +31,7 @@
   - [`setupDragIn(dragIn?: string | HTMLElement[], dragInOptions?: DDDragInOpt, root = HTMLElement | Document)`](#setupdragindragin-string--htmlelement-draginoptions-dddraginopt-root--htmlelement--document)
   - [`GridStack.registerEngine(engineClass: typeof GridStackEngine)`](#gridstackregisterengineengineclass-typeof-gridstackengine)
 - [API](#api)
-  - [`addWidget(el?: GridStackWidget | GridStackElement, options?: GridStackWidget)`](#addwidgetel-gridstackwidget--gridstackelement-options-gridstackwidget)
+  - [`addWidget(w: GridStackWidget): GridItemHTMLElement`](#addwidgetw-gridstackwidget-griditemhtmlelement)
   - [`batchUpdate(flag = true)`](#batchupdateflag--true)
   - [`compact(layout: CompactOptions = 'compact', doSort = true)`](#compactlayout-compactoptions--compact-dosort--true)
   - [`cellHeight(val: number, update = true)`](#cellheightval-number-update--true)
@@ -59,6 +58,7 @@
   - [`removeAll(removeDOM = true)`](#removeallremovedom--true)
   - [`resizable(el, val)`](#resizableel-val)
   - [`resizeToContent(el: GridItemHTMLElement, useAttrSize = false)`](#resizetocontentel-griditemhtmlelement-useattrsize--false)
+  - [`rotate(els: GridStackElement, relative?: Position)`](#rotateels-gridstackelement-relative-position)
   - [`save(saveContent = true, saveGridOpt = false): GridStackWidget[] | GridStackOptions`](#savesavecontent--true-savegridopt--false-gridstackwidget--gridstackoptions)
   - [`setAnimation(doAnimate)`](#setanimationdoanimate)
   - [`setStatic(staticValue)`](#setstaticstaticvalue)
@@ -100,7 +100,6 @@
 - `disableRemoveNodeOnDrop` - if `false` the widget will be removed from the dom when dropped to another grid. If `true` the widget will be hidden instead (default: `false`)
 - `disableResize` - disallows resizing of widgets (default: `false`).
 - `draggable` - allows to override draggable options - see `DDDragOpt`. (default: `{handle: '.grid-stack-item-content', appendTo: 'body', scroll: true}`)
-- `dragOut` to let user drag nested grid items out of a parent or not (default false) See [example](http://gridstackjs.com/demo/nested.html)
 - `engineClass` - the type of engine to create (so you can subclass) default to GridStackEngine
 - `sizeToContent`: boolean - make gridItems size themselves to their content, calling `resizeToContent(el)` whenever the grid or item is resized.
 - `float` - enable floating widgets (default: `false`) See [example](http://gridstackjs.com/demo/float.html)
@@ -359,14 +358,13 @@ grids.forEach(...)
 
 ## API
 
-### `addWidget(el?: GridStackWidget | GridStackElement, options?: GridStackWidget)`
+### `addWidget(w: GridStackWidget): GridItemHTMLElement`
 
-Creates new widget and returns it. Options is an object containing the fields x,y,width,height,etc...
+Creates new widget and returns it.
 
 Parameters:
 
-- `el`: GridStackWidget | GridStackElement - html element, or string definition, or GridStackWidget (which can have content string as well) to add
-- `options`: GridStackWidget - widget position/size options (optional, and ignore if first param is already option) - see GridStackWidget
+- `w`: GridStackWidget - widget position/size options - see GridStackWidget
 
 Widget will be always placed even if result height is more than actual grid height. You need to use `willItFit` method
 before calling `addWidget` for additional check.
@@ -374,8 +372,6 @@ before calling `addWidget` for additional check.
 ```js
 let grid = GridStack.init();
 grid.addWidget({ w: 3, content: "hello" });
-// or
-grid.addWidget('<div class="grid-stack-item"><div class="grid-stack-item-content">hello</div></div>', { w: 3 });
 ```
 
 ### `batchUpdate(flag = true)`
@@ -592,6 +588,13 @@ Updates widget height to match the content height to avoid v-scrollbar or dead s
 Note: this assumes only 1 child under `resizeToContentParent='.grid-stack-item-content'` (sized to gridItem minus padding) that is at the entire content size wanted.
 
 - `useAttrSize` set to `true` if GridStackNode.h should be used instead of actual container height when we don't need to wait for animation to finish to get actual DOM heights
+
+### `rotate(els: GridStackElement, relative?: Position)`
+
+rotate (by swapping w & h) the passed in node - called when user press 'r' during dragging
+
+- `els` - widget or selector of objects to modify
+- `relative` - optional pixel coord relative to upper/left corner to rotate around (will keep that cell under cursor)
 
 ### `save(saveContent = true, saveGridOpt = false): GridStackWidget[] | GridStackOptions`
 

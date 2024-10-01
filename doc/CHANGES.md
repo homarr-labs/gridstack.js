@@ -5,6 +5,11 @@ Change log
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 **Table of Contents**  *generated with [DocToc](http://doctoc.herokuapp.com/)*
 
+- [11.0.0 (TBD)](#1100-tbd)
+- [10.3.1 (2024-07-21)](#1031-2024-07-21)
+- [10.3.0 (2024-06-26)](#1030-2024-06-26)
+- [10.2.1 (2024-06-23)](#1021-2024-06-23)
+- [10.2.0 (2024-06-02)](#1020-2024-06-02)
 - [10.1.2 (2024-03-30)](#1012-2024-03-30)
 - [10.1.1 (2024-03-03)](#1011-2024-03-03)
 - [10.1.0 (2024-02-04)](#1010-2024-02-04)
@@ -108,6 +113,32 @@ Change log
 - [v0.1.0 (2014-11-18)](#v010-2014-11-18)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
+## 11.0.0 (TBD)
+* fix: [#2736](https://github.com/gridstack/gridstack.js/bug/2736) safe practices around GridStackWidget.content no longer setting innerHTML
+
+## 10.3.1 (2024-07-21)
+* fix: [#2734](https://github.com/gridstack/gridstack.js/bug/2734) rotate() JS error
+* fix: [#2741](https://github.com/gridstack/gridstack.js/pull/2741) resizeToContent JS error with nested grid
+* fix: [#2740](https://github.com/gridstack/gridstack.js/bug/2740) nested grid drag fix
+* fix: [#2730](https://github.com/gridstack/gridstack.js/bug/2730) resizing left from right most item works
+* fix: [#2327](https://github.com/gridstack/gridstack.js/bug/2327) remove dataTransfer mention as not supported
+
+## 10.3.0 (2024-06-26)
+* fix: [#2720](https://github.com/gridstack/gridstack.js/pull/2720) load() now creates widgets in order (used to be reverse due to old collision code)
+
+## 10.2.1 (2024-06-23)
+* fix: [#2683](https://github.com/gridstack/gridstack.js/issues/2683) check for fixed grid maxRow during resize
+* fix: [#2694](https://github.com/gridstack/gridstack.js/issues/2694) prevent 'r' rotation to items that can't resize (locked, noResize, fixed sizes)
+* fix: [#2709](https://github.com/gridstack/gridstack.js/pull/2709) support for multiple drag targets - Thank you [nickfulcher](https://github.com/nickfulcher)
+* fix: [#2669](https://github.com/gridstack/gridstack.js/issues/2669) load() sometimes restore incorrectly
+
+## 10.2.0 (2024-06-02)
+* feat: [#2682](https://github.com/gridstack/gridstack.js/pull/2682) You can now press 'Esc' to cancel a move|resize, 'r' to rotate during a drag. added `GridStack.rotate()` as well - Thank you John B. for this feature sponsor.
+* fix: [#2672](https://github.com/gridstack/gridstack.js/pull/2672) dropping into full grid JS error
+* fix: [#2676](https://github.com/gridstack/gridstack.js/issues/2676) handle minW resizing when column count is less
+* fix: [#2677](https://github.com/gridstack/gridstack.js/issues/2677) allow button as handle dragging
+
 ## 10.1.2 (2024-03-30)
 * fix: [#2628](https://github.com/gridstack/gridstack.js/issues/2628) `removeAll()` does not trigger Angular's ngOnDestroy 
 * fix: [#2503](https://github.com/gridstack/gridstack.js/issues/2503) Drag and drop a widget on top of a locked widget - Thank you [JakubEleniuk](https://github.com/JakubEleniuk)
