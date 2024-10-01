@@ -152,6 +152,8 @@ $animation_speed: .3s !default;
   }
 }
 
+/*
+We don't want to be full width when we resize from 1 to something else
 .gs-1 > .grid-stack-item {
   width: 100%;
-}
+}*/
