@@ -7,9 +7,8 @@
   - [Responsive](#responsive)
     - [Breakpoint](#breakpoint)
   - [DDDragOpt](#dddragopt)
-  - [DDDragInOpt extends DDDragOpt](#dddraginopt-extends-dddragopt)
 - [Grid attributes](#grid-attributes)
-- [Item Options](#item-options)
+- [Item Options - GridStackWidget](#item-options---gridstackwidget)
 - [Item attributes](#item-attributes)
 - [Events](#events)
   - [added(event, items)](#addedevent-items)
@@ -28,7 +27,7 @@
   - [`init(options: GridStackOptions = {}, elOrString: GridStackElement = '.grid-stack'): GridStack`](#initoptions-gridstackoptions---elorstring-gridstackelement--grid-stack-gridstack)
   - [`initAll(options: GridStackOptions = {}, selector = '.grid-stack'): GridStack[]`](#initalloptions-gridstackoptions---selector--grid-stack-gridstack)
   - [`addGrid(parent: HTMLElement, opt: GridStackOptions = {}): GridStack `](#addgridparent-htmlelement-opt-gridstackoptions---gridstack-)
-  - [`setupDragIn(dragIn?: string | HTMLElement[], dragInOptions?: DDDragInOpt, root = HTMLElement | Document)`](#setupdragindragin-string--htmlelement-draginoptions-dddraginopt-root--htmlelement--document)
+  - [`setupDragIn(dragIn?: string | HTMLElement[], dragInOptions?: DDDragOpt, widgets?: GridStackWidget[], root = HTMLElement | Document)`](#setupdragindragin-string--htmlelement-draginoptions-dddragopt-widgets-gridstackwidget-root--htmlelement--document)
   - [`GridStack.registerEngine(engineClass: typeof GridStackEngine)`](#gridstackregisterengineengineclass-typeof-gridstackengine)
 - [API](#api)
   - [`addWidget(w: GridStackWidget): GridItemHTMLElement`](#addwidgetw-gridstackwidget-griditemhtmlelement)
@@ -106,6 +105,7 @@
 - `handle` - draggable handle selector (default: `'.grid-stack-item-content'`)
 - `handleClass` - draggable handle class (e.g. `'grid-stack-item-content'`). If set `handle` is ignored (default: `null`)
 - `itemClass` - widget class (default: `'grid-stack-item'`)
+- `lazyLoad?`: boolean - true when widgets are only created when they scroll into view (visible). also overridable per widget in `GridStackWidget`
 - `margin` - gap size around grid item and content (default: `10`). Can be:
   - an integer (px)
   - a string (ex: '2em', '20px', '2rem')
@@ -150,10 +150,7 @@ v10.x supports a much richer responsive behavior, you can have breakpoints of wi
 - `pause`?: boolean | number - if set (true | msec), dragging placement (collision) will only happen after a pause by the user. Note: this is Global
 - `scroll`?: boolean - default to 'true', enable or disable the scroll when an element is dragged on bottom or top of the grid.
 - `cancel`?: string - prevents dragging from starting on specified elements, listed as comma separated selectors (eg: '.no-drag'). default built in is 'input,textarea,button,select,option'
-
-### DDDragInOpt extends DDDragOpt
-
-- `helper`?: 'clone' | ((event: Event) => HTMLElement) - helper function when dropping (ex: 'clone' or your own method)
+- `helper`?: 'clone' | ((el: HTMLElement) => HTMLElement) - helper function when dragging side panel items that need to be cloned before dropping (ex: 'clone' or your own method)
 
 ## Grid attributes
 
@@ -163,7 +160,7 @@ Extras:
 
 - `gs-current-row` - (internal) current rows amount. Set by the library only. Can be used by the CSS rules.
 
-## Item Options
+## Item Options - GridStackWidget
 
 options you can pass when calling `addWidget()`, `update()`, `load()` and many others
 
@@ -182,6 +179,7 @@ options you can pass when calling `addWidget()`, `update()`, `load()` and many o
   Note: This also allow you to set a maximum h value (but user changeable during normal resizing) to prevent unlimited content from taking too much space (get scrollbar)
 - `subGrid`?: GridStackOptions - optional nested grid options and list of children
 - `subGridDynamic`?: boolean - enable/disable the creation of sub-grids on the fly by dragging items completely over others (nest) vs partially (push). Forces `DDDragOpt.pause=true` to accomplish that.
+- `lazyLoad?`: boolean - true when widgets are only created when they scroll into view (visible). also optin on entire grid.
 
 ## Item attributes
 
@@ -343,14 +341,14 @@ grids.forEach(...)
 - @param opt grids options used to initialize the grid, and list of children
 - see [nested.html](https://github.com/gridstack/gridstack.js/tree/master/demo/nested.html) demo
 
-### `setupDragIn(dragIn?: string | HTMLElement[], dragInOptions?: DDDragInOpt, root = HTMLElement | Document)`
+### `setupDragIn(dragIn?: string | HTMLElement[], dragInOptions?: DDDragOpt, widgets?: GridStackWidget[], root = HTMLElement | Document)`
 
 - call to setup dragging in from the outside (say toolbar), by specifying the class selection and options.
   Called during `GridStack.init()` as options, but can also be called directly (last param are cached) in case the toolbar is dynamically create and needs to change later.
-- @param dragIn string selector (ex: `'.sidebar .grid-stack-item'`) or list of dom elements
-- @param dragInOptions options - see `DDDragInOpt`. (default: `{handle: '.grid-stack-item-content', appendTo: 'body'}`
-- @param root - default to document. for shadow dom support pass the parent container.
-  but you will probably also want `helper: 'clone'` or your own callback function).
+- @param `dragIn` string selector (ex: `'.sidebar-item'`) or list of dom elements
+- @param `dragInOptions` options - see `DDDragOpt`. default: `{appendTo: 'body', helper: 'clone'}`
+- @param `widgets` GridStackWidget def to assign to each element which defines what to create on drop
+- @param `root` optional root which defaults to document (for shadow dom pass the parent HTMLDocument)
 
 ### `GridStack.registerEngine(engineClass: typeof GridStackEngine)`
 
@@ -518,8 +516,9 @@ Parameters:
 
 ```js
 let grid = GridStack.init();
-grid.el.appendChild('<div id="gsi-1" gs-x="0" gs-y="0" gs-w="3" gs-h="2" gs-auto-position="true"></div>');
-grid.makeWidget("#gsi-1");
+// ...create some html content, possibly looking like:
+// <div id="item-1" gs-x="0" gs-y="0" gs-w="3" gs-h="2"></div>'
+grid.makeWidget("#item-1");
 ```
 
 ### `makeSubGrid(el)`
@@ -528,13 +527,12 @@ Used to add a subgrid into an existing grid.
 
 ```js
 const grid = Gridstack.init();
-grid.el.appendChild(`
-<div id="gsi-1" gs-x="0" gs-y="0" gs-w="3" gs-h="2" gs-auto-position="true">
-      <div class="grid-stack" id="nested-grid">
-          <div id="gsi-2" gs-x="0" gs-y="0" gs-w="3" gs-h="2" gs-auto-position="true">
-          </div>
-      </div>
-</div>`);
+// ...create some html content, possibly looking like:
+// <div id="gsi-1" gs-x="0" gs-y="0" gs-w="3" gs-h="2">
+//  <div class="grid-stack" id="nested-grid">
+//    <div id="gsi-2" gs-w="3" gs-h="2"></div>
+//  </div>
+//</div>
 grid.makeSubGrid(grid.el.getElementById("nested-grid"));
 ```
 
