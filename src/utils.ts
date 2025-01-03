@@ -3,8 +3,7 @@
  * Copyright (c) 2021-2024 Alain Dumesny - see GridStack root license
  */
 
-import { GridStack } from './gridstack';
-import { GridStackElement, GridStackNode, GridStackOptions, numberOrString, GridStackPosition, GridStackWidget } from './types';
+import { GridStackElement, GridStackNode, GridStackOptions, numberOrString, GridStackPosition, GridStackWidget, RenderFcn } from './types';
 
 export interface HeightData {
   h: number;
@@ -110,7 +109,14 @@ export class Utils {
     return els;
   }
 
-  /** create the default grid item divs, and content possibly lazy loaded calling GridStack.renderCB */
+
+  /**
+   * callback to create the content of widgets so the app can control how to store and restore it
+   * By default this lib will do 'el.textContent = w.content' forcing text only support for avoiding potential XSS issues.
+   */
+  public static renderCB?: RenderFcn = (el: HTMLElement, w: GridStackNode) => { if (el && w?.content) el.textContent = w.content; };
+
+  /** create the default grid item divs, and content possibly lazy loaded calling Utils.renderCB */
   static createWidgetDivs(itemClass: string, n: GridStackNode): HTMLElement {
     const el = Utils.createDiv(['grid-stack-item', itemClass]);
     const cont = Utils.createDiv(['grid-stack-item-content'], el);
@@ -121,11 +127,11 @@ export class Utils {
         n.visibleObservable = new IntersectionObserver(([entry]) => { if (entry.isIntersecting) {
           n.visibleObservable?.disconnect();
           delete n.visibleObservable;
-          GridStack.renderCB(cont, n)
+          Utils.renderCB(cont, n)
         }});
         window.setTimeout(() => n.visibleObservable?.observe(el)); // wait until callee sets position attributes
       }
-    } else GridStack.renderCB(cont, n);
+    } else Utils.renderCB(cont, n);
 
     return el;
   }

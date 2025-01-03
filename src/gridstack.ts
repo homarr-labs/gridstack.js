@@ -11,7 +11,7 @@ import {
   gridDefaults, ColumnOptions, GridItemHTMLElement, GridStackElement, GridStackEventHandlerCallback,
   GridStackNode, GridStackWidget, numberOrString, DDUIData, DDDragOpt, GridStackPosition, GridStackOptions,
   GridStackEventHandler, GridStackNodesHandler, AddRemoveFcn, SaveFcn, CompactOptions, GridStackMoveOpts, ResizeToContentFcn, GridStackDroppedHandler, GridStackElementHandler,
-  Position, RenderFcn
+  Position
 } from './types';
 
 /*
@@ -196,11 +196,7 @@ export class GridStack {
    */
   public static saveCB?: SaveFcn;
 
-  /**
-   * callback to create the content of widgets so the app can control how to store and restore it
-   * By default this lib will do 'el.textContent = w.content' forcing text only support for avoiding potential XSS issues.
-   */
-  public static renderCB?: RenderFcn = (el: HTMLElement, w: GridStackNode) => { if (el && w?.content) el.textContent = w.content; };
+  public static renderCB = Utils.renderCB;
 
   /** callback to use for resizeToContent instead of the built in one */
   public static resizeToContentCB?: ResizeToContentFcn;
